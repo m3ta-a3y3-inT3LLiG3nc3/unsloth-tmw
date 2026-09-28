@@ -1836,6 +1836,195 @@
       "severity": "CRITICAL",
       "evidence": "L461:     while True: sha256:a8f95a987a45a8eb67ee78dd9d98674c7b88c97e7722f63dd446f77e3dcfe0e7",
       "evidence_hash": "20a717b5faac68b3a57b11859f90d21959c29302e413bf3cd36e1263ccfbb00b"
+    },
+    {
+      "package": "huggingface-hub",
+      "file": "huggingface_hub/_sandbox.py",
+      "check": "openssl encryption + network/key material (encrypted exfiltration)",
+      "severity": "CRITICAL",
+      "evidence": "OpenSSL: L137:   actual=$(openssl dgst -sha256 -r \"$d\" | cut -d' ' -f1)\nNetwork: L650:         self._client = httpx2.Client(\nL651:             headers={\"X-Sandbox-Token\": sandbox_token},\nL652:             auth=_SandboxAuth(api),\nL653:             limits=httpx2.Limits(max_connections=max_connections, max_keepalive_connections=max_connections),\nL654:\nL655:\nL656:\nL657:\nL658:             follow_redirects=False,\nL659:         )",
+      "evidence_hash": "49365231ff611c1cd73306c8294803dc31018e697a59b66ee57f0c166c3c320b",
+      "comment": "FP: upstream huggingface-hub sandbox feature. The openssl usage is a sha256 hash-verification shell snippet; the network leg is the documented sandbox-job API client (X-Sandbox-Token). Verified against the upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "huggingface-hub",
+      "file": "huggingface_hub/_sandbox.py",
+      "check": "Writes to /tmp and executes (staged dropper)",
+      "severity": "CRITICAL",
+      "evidence": "L130: d=/tmp/.sbx-server sha256:c845d184bd7941b05696b89387cb975850ab04e8ad83091f69342b0aee775884",
+      "evidence_hash": "8b25f31477366141a6677614c8d1dead8aa6c825ab4b80808df0106abf2d87c9",
+      "comment": "REVIEW: upstream huggingface-hub sandbox feature by design - downloads the sbx-server binary pinned by digest and runs it as the sandbox runtime. Legitimate upstream behavior, not a compromise; suppressed as reviewed upstream. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "scikit-learn",
+      "file": "sklearn/datasets/_openml.py",
+      "check": "C2 polling/beaconing loop detected",
+      "severity": "CRITICAL",
+      "evidence": "L122:             while True: sha256:8b044e656cc30b7456c66ef639158ba5712db35847626e17339ee55d16b2eb3f",
+      "evidence_hash": "e7232e73f5faaeca3e5bd26f5096ddbf20ece6787c3c92ba9fc903f9a167621a",
+      "comment": "FP: 'while True' is the retry decorator for OpenML HTTP fetches (backoff on URLError/TimeoutError), not beaconing. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "scikit-learn",
+      "file": "sklearn/externals/array_api_compat/cupy/__init__.py",
+      "check": "Downloads and executes remote code",
+      "severity": "CRITICAL",
+      "evidence": "L12: __import__(__spec__.parent + '.linalg') | L13: __import__(__spec__.parent + '.fft')",
+      "evidence_hash": "2602c1c446ee242b8222f1f7e0a2edbeb7d951ca7c734de66fd03f3a538fda59",
+      "comment": "FP: __import__(__spec__.parent + '.linalg') is a lazy import of a sibling submodule - no download and no remote code. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "scikit-learn",
+      "file": "sklearn/externals/array_api_compat/dask/array/__init__.py",
+      "check": "Downloads and executes remote code",
+      "severity": "CRITICAL",
+      "evidence": "L16: __import__(__spec__.parent + '.linalg') | L17: __import__(__spec__.parent + '.fft')",
+      "evidence_hash": "2602c1c446ee242b8222f1f7e0a2edbeb7d951ca7c734de66fd03f3a538fda59",
+      "comment": "FP: same lazy-import shim as cupy variant - local submodule import, no download. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "scikit-learn",
+      "file": "sklearn/externals/array_api_compat/numpy/__init__.py",
+      "check": "Downloads and executes remote code",
+      "severity": "CRITICAL",
+      "evidence": "L22: __import__(__spec__.parent + \".linalg\") | L24: __import__(__spec__.parent + \".fft\")",
+      "evidence_hash": "29ea7226545670c67c75aaf06bb2763a2b5199076ce62728fbe5c25b1bb08606",
+      "comment": "FP: same lazy-import shim - local submodule import, no download. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "scikit-learn",
+      "file": "sklearn/externals/array_api_compat/torch/__init__.py",
+      "check": "Downloads and executes remote code",
+      "severity": "CRITICAL",
+      "evidence": "L13: __import__(__spec__.parent + '.linalg') | L14: __import__(__spec__.parent + '.fft')",
+      "evidence_hash": "2602c1c446ee242b8222f1f7e0a2edbeb7d951ca7c734de66fd03f3a538fda59",
+      "comment": "FP: same lazy-import shim - local submodule import, no download. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "huggingface-hub",
+      "file": "huggingface_hub/_sandbox.py",
+      "check": "openssl encryption + network/key material (encrypted exfiltration)",
+      "severity": "CRITICAL",
+      "evidence": "OpenSSL: L137:   actual=$(openssl dgst -sha256 -r \"$d\" | cut -d' ' -f1)\nNetwork: L650:         self._client = httpx.Client(\nL651:             headers={\"X-Sandbox-Token\": sandbox_token},\nL652:             auth=_SandboxAuth(api),\nL653:             limits=httpx.Limits(max_connections=max_connections, max_keepalive_connections=max_connections),\nL654:\nL655:\nL656:\nL657:\nL658:             follow_redirects=False,\nL659:         )",
+      "evidence_hash": "434d8421cac99d2f6cb5677896be3d0ba2186866d639ae0231ef8d8390fccc74",
+      "comment": "FP: upstream huggingface-hub sandbox feature. The openssl usage is a sha256 hash-verification shell snippet; the network leg is the documented sandbox-job API client (X-Sandbox-Token). Verified against the upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "huggingface-hub",
+      "file": "huggingface_hub/_sandbox.py",
+      "check": "C2 polling/beaconing loop detected",
+      "severity": "CRITICAL",
+      "evidence": "L488:         while True: sha256:0fadf46b67afdd30dacc67506e5b6058184ee6ccd5f7bea41015fac02f31d182",
+      "evidence_hash": "e489ec51120802dadfc908790d0de1253cc56112db2d521ed57641e7869cb99e",
+      "comment": "FP: 'while True' is a pagination cursor loop over the sandbox /files/list endpoint (verified in upstream wheel), not beaconing. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "huggingface-hub",
+      "file": "huggingface_hub/hf_api.py",
+      "check": "C2 polling/beaconing loop detected",
+      "severity": "CRITICAL",
+      "evidence": "L4828:         while True: sha256:1ce337753534aa45be81cf67dddfd1180290ee5b1835930cee09022741137ef2",
+      "evidence_hash": "af1e941508b9439bb9baa2644fa142fffc38e4be8b5a8ca713e45bd91058ff8e",
+      "comment": "REVIEW: 'while True' in upstream hf_api.py matches the long-standing retry/polling idiom in the Hub API client (retry backoff around HTTP calls). Suppressed as benign pending exact-version line check. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/converter_scan.py",
+      "check": "Writes to /tmp and executes (staged dropper)",
+      "severity": "CRITICAL",
+      "evidence": "L324:     r\"/tmp/\\S+.*(?:subprocess|os\\.system|os\\.popen|Popen|chmod.*\\+x)\", | L324:     r\"/tmp/\\S+.*(?:subprocess|os\\.system|os\\.popen|Popen|chmod.*\\+x)\", sha256:5b1749fa0d5dca5b0404f92f3e82d17a9b872a2443830a68d84016680f97e95a",
+      "evidence_hash": "057c7a7106a83eaa1e82063fdae0b90bc721a73e20af2f53f05a0919bc84e4ed",
+      "comment": "FP: the flagged text is converter_scan.py's own detection regex (RE_TEMP_EXEC) - unsloth's supply-chain scanner matching its own pattern strings. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/converter_scan.py",
+      "check": "May-12 Shai-Hulud IOC string present in Python file",
+      "severity": "CRITICAL",
+      "evidence": "L339:     r\"|With Love TeamPCP|We've been online over 2 hours)\",",
+      "evidence_hash": "1fc2637d45f3b1dc5a94c41c13abc5fde05e224b9fcac3f8ddd861e84f90ec57",
+      "comment": "FP: flagged strings are the RE_MAY12_IOC detection pattern in unsloth's own scanner - IOC strings kept as detection signatures, not a compromise. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/llama_cpp.py",
+      "check": "Harvests environment variables/secrets AND makes network calls",
+      "severity": "CRITICAL",
+      "evidence": "Env: L985:     token = os.environ.get(\"GH_TOKEN\") or os.environ.get(\"GITHUB_TOKEN\") | L5408:     env = dict(env) if env is not None else dict(os.environ) | L5495:     env = dict(os.environ)\nNetwork: L993:             response = requests.get(url, timeout = timeout, headers = headers, stream = stream) | L4106:                     response = requests.get(\nL4107:                         LLAMA_CPP_CONVERT_FILE, timeout = (10, 120)\nL4108:                     ) | L7544:     check = requests.get(llama_cpp_chat_file, timeout = 5)",
+      "evidence_hash": "88c38db8f2b8b9d6512709dd7a6d7a9a7bf8a3c48007124ff3680da3a5331d1d",
+      "comment": "REVIEW: GH_TOKEN/GITHUB_TOKEN feeds only a GitHub API rate-limit Authorization header for llama.cpp release downloads (upstream unsloth behavior). Suppressed as benign reviewed upstream code. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/vision_utils.py",
+      "check": "Harvests environment variables/secrets AND makes network calls",
+      "severity": "CRITICAL",
+      "evidence": "Env: L151:     return os.environ.get(UNSLOTH_ALLOW_PRIVATE_URL_FETCH_VAR, \"0\") == \"1\"\nNetwork: L109:     from urllib.request import url2pathname | L478:     session = requests.Session()",
+      "evidence_hash": "3bbd70075adbff1b2cb50de320002a0dce6324653a8727ec60c42e0943dccdac",
+      "comment": "FP: UNSLOTH_ALLOW_PRIVATE_URL_FETCH is a documented feature gate; the network leg is a legitimate media download with an SSRF deny-list. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/vision_utils.py",
+      "check": "Accesses cloud metadata/IMDS AND makes network calls",
+      "severity": "CRITICAL",
+      "evidence": "IMDS: L144:     \"metadata.google.internal\", \"metadata.goog\", \"metadata\",\nNetwork: L109:     from urllib.request import url2pathname | L478:     session = requests.Session()",
+      "evidence_hash": "972786b837f20621c6615cf1c38a0b84abe925d302d7317679bc0272643c0793",
+      "comment": "FP: flagged hostnames sit in _BLOCKED_HOSTNAMES, an SSRF deny-list - defensive strings, never requested. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/compiler.py",
+      "check": "Advanced obfuscation (marshal/compile/zlib) + exec/eval",
+      "severity": "HIGH",
+      "evidence": "Obfusc: L1638:         exec(compile(source, file_location, \"exec\"), new_module.__dict__) | L1877:             _mod = __import__(model_location, fromlist=items) | L6295:         f\"   {chr(92)}{chr(92)}   /|    Num examples = {num_examples:,} | Num Epochs = {num_train_epochs:,} | Total steps = {max_steps:,}\\\\n\"\\\\\nL6296:         f\"O^O/ {chr(92)}_/ {chr(92)}    Batch size per device = {self._train_batch_size:,} | Gradient accumulation steps = {args.gradient_accumulation_steps}\\\\n\"\\\\\nL6297:         f\"{chr(92)}        /    Data Parallel GPUs = {args.world_size} | Total batch size ({self._train_batch_size} x {args.gradient_accumulation_steps} x {args.world_size}) = {total_train_batch_size: sha256:b7ea9cdbe360ad323911014caf12a9d4ec87cb36195a511080e4e484c2fb80d2\nL6298:         f' \"-____-\"     Trainable parameters = {get_model_param_count(model, trainable_only=True):,} of {get_model_param_count(model):,} ({get_model_param_count(model, trainable_only=True)/get_model_p sha256:9e832c1e7b2815aa44dc42638d821cb9df22550db88d85bd4bfb29c13f984b53 | L6296:         f\"O^O/ {chr(92)}_/ {chr(92)}    Batch size per device = {self._train_batch_size:,} | Gradient accumulation steps = {args.gradient_accumulation_steps}\\\\n\"\\\\\nL6297:         f\"{chr(92)}        /    Data Parallel GPUs = {args.world_size} | Total batch size ({self._train_batch_size} x {args.gradient_accumulation_steps} x {args.world_size}) = {total_train_batch_size: sha256:b7ea9cdbe360ad323911014caf12a9d4ec87cb36195a511080e4e484c2fb80d2\nL6298:         f' \"-____-\"     Trainable parameters = {get_model_param_count(model, trainable_only=True):,} of {get_model_param_count(model):,} ({get_model_param_count(model, trainable_only=True)/get_model_p sha256:9e832c1e7b2815aa44dc42638d821cb9df22550db88d85bd4bfb29c13f984b53 | L6295:         f\"   {chr(92)}{chr(92)}   /|    Num examples = {num_examples:,} | Num Epochs = {num_train_epochs:,} | Total steps = {max_steps:,}\\\\n\"\\\\\nL6296:         f\"O^O/ {chr(92)}_/ {chr(92)}    Batch size per device = {self._train_batch_size:,} | Gradient accumulation steps = {args.gradient_accumulation_steps}\\\\n\"\\\\\nL6297:         f\"{chr(92)}        /    Data Parallel GPUs = {args.world_size} | Total batch size ({self._train_batch_size} x {args.gradient_accumulation_steps} x {args.world_size}) = {total_train_batch_size: sha256:b7ea9cdbe360ad323911014caf12a9d4ec87cb36195a511080e4e484c2fb80d2\nExec: L1638:         exec(compile(source, file_location, \"exec\"), new_module.__dict__) | L1806:         _modeling_file = eval(model_location) | L2533:     f = eval(f\"{model_location}.{module}\") | L2874:         exec(f\"def raise_{j}(*args, **kwargs): print('{function}')\", globals(), locals()) | L2875:         try: exec(f\"EMPTY_LOGITS.{function} = raise_{j}\", globals(), locals()) | L4357:         exec(f\"import {parent}\", locals(), globals()) | L4471:                 dir(eval(parent)), | L4475:             exec(f\"{parent}.{child}.forward = forward\", globals(), locals()) | L4549:         module = eval(f\"modeling_file.{module}\") | L4576:             inner_class = eval(f\"modeling_file.{inner_class}\") | L4706:                 exec(f\"from timm.layers.norm_act import {norm}\") | L4714:             forward = eval(norm).forward | L4720:             exec(f\"timm.layers.norm_act.{norm}.forward = forward\") | L4737:                 exec(f\"from timm.models._efficientnet_blocks import {block}\") | L4745:             forward = eval(block).forward | L4751:             exec(f\"timm.models._efficientnet_blocks.{block}.forward = forward\") | L4991:     exec(\nL4992:         f\"{model_location}.torch.nn.{module}.forward = forward\",\nL4993:         globals(),\nL4994:         locals(),\nL4995:     ) | L4997:         exec(f\"{model_location}.nn.{module}.forward = forward\", globals(), locals()) | L5001:         exec(\nL5002:             f\"combined_module.torch.nn.{module}.forward = forward\",\nL5003:             globals(),\nL5004:             locals(),\nL5005:         ) | L5007:             exec(f\"combined_module.nn.{module}.forward = forward\", globals(), locals()) | L5084:                 source = eval(f\"{model_location}.torch\") | L5091:             function = eval(f\"source.nn.{module}\") | L5285:     exec(\"import transformers\", globals()) | L5298:     exec(\nL5299:         \"model_logger.addFilter(HideLoggingMessage('`use_cache`'))\", globals(), locals()\nL5300:     ) | L5302:     exec(\nL5303:         \"model_logger.addFilter(HideLoggingMessage('compile_config'))\",\nL5304:         globals(),\nL5305:         locals(),\nL5306:     ) | L5540:         source = eval(f\"modeling_file.{module}\") | L5554:         source = eval(f\"modeling_file.{module}\") | L5655:         source = eval(f\"modeling_file.{module}\") | L5693:             source = eval(f\"{model_location}.{module}\") | L5773:                 source = eval(f\"{model_location}.{module}\") | L5821:             source = eval(f\"{model_location}.{module}\") | L6058:         source = eval(f\"{model_location}.{module}\") | L6069:         exec(\nL6070:             f\"{model_location}.{module}._update_causal_mask = no_update_causal_mask\",\nL6071:             globals(),\nL6072:         ) | L6135:                 source = eval(f\"{model_location}.{module}\") | L6176:                 module_cls = eval(f\"{model_location}.{module}\") | L6213:                 module_cls = eval(f\"{model_location}.{module}\") | L6280:     exec(\nL6281:         \"from transformers.trainer import (\" + \", \".join(x for x in good_items) + \")\",\nL6282:         globals(),\nL6283:     ) | L6345:     exec(inner_training_loop, globals()) | L6354:             function = eval(f\"{model_location}.{module}\") | L6441:             function = eval(f\"{model_location}.{module}\") | L6595:             exec(\nL6596:                 f\"{model_location}.{module} = combined_module.{module}\",\nL6597:                 globals(),\nL6598:                 locals(),\nL6599:             ) | L6609:     check_dicts = dir(eval(f\"{model_location}\")) | L6611:         item = eval(f\"{model_location}.{check}\") | L6621:                         exec(\nL6622:                             f\"{model_location}.{check}['{key}'] = combined_module.{replaced_class}\",\nL6623:                             globals(),\nL6624:                             locals(),\nL6625:                         )",
+      "evidence_hash": "aaba0e6f7c289e2d6ee4ac8ff927d691a450fb3913a4245aa0fab585dd28d871",
+      "comment": "REVIEW: exec(compile(...)) is unsloth's documented compiled-kernel/patched-model loader - genuine code exec of locally generated code by design. Suppressed as benign reviewed upstream mechanism. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/converter_scan.py",
+      "check": "Installs persistence mechanism (systemd/cron/launchd/registry)",
+      "severity": "HIGH",
+      "evidence": "L182:     r\"/etc/systemd/\" | L185:     r\"|/etc/cron\" | L188:     r\"|/Library/LaunchDaemons\" | L189:     r\"|/Library/LaunchAgents\" | L191:     r\"|~/.local/share/systemd\" | L193:     r\"|HKEY_LOCAL_MACHINE.*\\\\\\\\Run\" | L194:     r\"|HKEY_CURRENT_USER.*\\\\\\\\Run\"",
+      "evidence_hash": "23e53d85cbd99e32168cc24464299379df5a1864ad465d52aae6ca3d68684cfa",
+      "comment": "FP: flagged strings are the RE_PERSISTENCE detection regex in unsloth's own supply-chain scanner. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/saving_utils.py",
+      "check": "Advanced obfuscation (marshal/compile/zlib) + exec/eval",
+      "severity": "HIGH",
+      "evidence": "Obfusc: L5147:         module = __import__(\"transformers\", fromlist = [model_class_name]) | L5171:         module = __import__('transformers', fromlist=[model_class_name])\nExec: L5002:     exec(f\"from transformers.modeling_utils import ({', '.join(functions)})\", locals(), globals()) | L5048:     exec(save_pretrained, globals(), functions)",
+      "evidence_hash": "2ab08222867e458035a053336fa2efcee824befc382e47eef02b5b78fe08c115",
+      "comment": "FP: dynamic import/exec of transformers class names for model saving - legitimate adapter machinery, no remote code. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/vllm_utils.py",
+      "check": "Advanced obfuscation (marshal/compile/zlib) + exec/eval",
+      "severity": "HIGH",
+      "evidence": "Obfusc: L3781:             lora_types.append(getattr(__import__(module_path, fromlist = [class_name]), class_name))\nExec: L1231:             cross_attn_layer = eval(f'vllm_internals.{name}') | L1266:                 layernorm = eval(vllm_name).state_dict()[\"weight\"] | L1567:                 parent = eval(f\"new_model.{parent_path}\") if parent_path else new_model | L1572:                     exec(f\"new_model.{layer_name_br} = layer\") | L1642:                 exec(f\"new_model.{layer_name_br}.weight = None\") | L1643:                 exec(f\"new_model.{layer_name_br}.weight = weight_param\") | L1645:                     exec(f\"new_model.{layer_name_br}.bias = None\") | L1646:                     exec(f\"new_model.{layer_name_br}.bias = bias\") | L1652:             exec(f\"new_model.{layer_name} = layer\") | L1668:     new_model.eval() | L3600:                 exec(f\"module.to({dtype})\") | L3623:                 exec(f\"module.to({dtype})\") | L4536:     model.eval() | L4576:     new_model.eval()",
+      "evidence_hash": "4928e730b84a3fa71dcc50cfe185c77c2028be09ad908706710ab864786b4659",
+      "comment": "FP: dynamic attribute access into vllm internals for LoRA adapter patching - legitimate adapter machinery, no remote code. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/mlx/loader.py",
+      "check": "Advanced obfuscation (marshal/compile/zlib) + exec/eval",
+      "severity": "HIGH",
+      "evidence": "Obfusc: L4859:             _mod = __import__(module_name, fromlist=[\"_\"])\nExec: L158:     mx.eval(model.parameters()) | L192:     mx.eval([v for k, v in tree_flatten(casted) if is_mlx_norm_parameter_path(k)]) | L1254:                 mx.eval(model.parameters()) | L1255:                 mx.eval(mx.distributed.all_sum(mx.array(1.0), stream=mx.cpu)) | L1322:             mx.eval(model.parameters()) | L1325:                 mx.eval(mx.distributed.all_sum(mx.array(1.0), stream=mx.cpu)) | L2715:         mx.eval(altup.correct(predictions, activated)) | L3214:             mx.eval(baseline, perturbed) | L4507:         model.eval() | L5248:         mx.eval(model.parameters()) | L5364:         mx.eval(module.weight) | L7917:         mx.eval(model.parameters()) | L7934:             mx.eval(target.parameters()) | L8812:                     lambda: mx.eval(model.parameters()), | L8872:                     lambda: mx.eval(model.parameters()), | L9028:                 mx.eval(model.parameters())",
+      "evidence_hash": "33ed0a28c99198e85c768e9d9e799e0762c433cfdab71992fa1e047c67b23046",
+      "comment": "FP: the 'Exec' evidence is Apple's MLX mx.eval() (array evaluation), not Python exec - keyword match on 'eval'. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/temporary_patches/moe_utils.py",
+      "check": "Advanced obfuscation (marshal/compile/zlib) + exec/eval",
+      "severity": "HIGH",
+      "evidence": "Obfusc: L330:             exec(compile(cached_bytes, cache_file, \"exec\"), module.__dict__)\nExec: L330:             exec(compile(cached_bytes, cache_file, \"exec\"), module.__dict__)",
+      "evidence_hash": "ef22a4fe0d8ec7e2b0e4afc6e6a3d997cd94c981bf59790562217d4f9dd70732",
+      "comment": "REVIEW: exec(compile(cached_bytes, ...)) is unsloth's hash-verified cached-module loader for temporary patches (TOCTOU documented in comments). Real code exec by design; suppressed as benign reviewed upstream mechanism. (triaged 2026-09-28, CI fix PR)"
     }
   ]
 }
