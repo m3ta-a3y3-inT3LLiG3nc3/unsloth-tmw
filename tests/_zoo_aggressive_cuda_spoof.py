@@ -13,6 +13,11 @@ from typing import Any
 
 def apply() -> None:
     """Apply the spoof. Idempotent: calling again has no effect."""
+    # torchcodec stub first: it must exist (with a spec) before any
+    # transformers import can call find_spec("torchcodec") on it. The ensure
+    # is itself idempotent, so it runs before the early-return below.
+    _ensure_torchcodec_stub()
+
     import torch
 
     if getattr(torch.cuda, "_unsloth_consolidated_spoof", False):
@@ -200,6 +205,31 @@ def apply() -> None:
         torch.cuda.amp = cuda_amp  # type: ignore[attr-defined]
 
     torch.cuda._unsloth_consolidated_spoof = True  # type: ignore[attr-defined]
+
+
+def _ensure_torchcodec_stub() -> None:
+    """Seat (or repair) a spec-bearing torchcodec stub in sys.modules.
+
+    torchcodec ships no CPU wheel, so CPU CI stubs it. A bare
+    ``types.ModuleType`` has ``__spec__ = None``, and transformers'
+    ``import_utils`` calls ``importlib.util.find_spec("torchcodec")`` at
+    import time, which raises ``ValueError`` on a spec-less entry. Repairing
+    here covers stubs seated before ``apply()`` runs, and seating our own
+    first pre-empts the notebooks-ci smoke step's stub via its
+    ``if "torchcodec" not in sys.modules`` guard. Never shadows a real
+    install: the seat only happens when ``find_spec`` finds nothing.
+    """
+    import importlib.machinery
+    import importlib.util
+
+    stub = sys.modules.get("torchcodec")
+    if stub is not None:
+        if getattr(stub, "__spec__", None) is None:
+            stub.__spec__ = importlib.machinery.ModuleSpec("torchcodec", loader = None)
+    elif importlib.util.find_spec("torchcodec") is None:
+        stub = types.ModuleType("torchcodec")
+        stub.__spec__ = importlib.machinery.ModuleSpec("torchcodec", loader = None)
+        sys.modules["torchcodec"] = stub
 
 
 if __name__ == "__main__":
