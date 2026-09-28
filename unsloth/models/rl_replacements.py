@@ -600,6 +600,13 @@ def sft_trainer_prepare_dataset(function_name, function):
                 where = "sft_prepare_dataset truncation guard",
             )
             # Reuse the guarded _unsloth_pack_has_strategy from the setup rather than re-calling _inspect.signature(pack_dataset): the setup wraps that in try/except, so a non-introspectable pack_dataset must not crash here.
+            # unsloth_zoo annotates the pack_dataset( call with an inline noqa comment; the comment is not load-bearing, so tolerate any trailing comment on that line before the wide anchor below. The anchor still fails loudly if the call shape itself drifts.
+            function = re.sub(
+                r"dataset = pack_dataset\([ \t]*#[^\n]*\n",
+                "dataset = pack_dataset(\n",
+                function,
+                count = 1,
+            )
             function = _require_replace(
                 function,
                 """dataset = pack_dataset(

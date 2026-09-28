@@ -533,18 +533,25 @@ def test_trl_grpo_quantized_model_cast_contract(tag: str):
 
 
 def test_trl_grpo_aux_loss_enabled_contract(tag: str):
-    """rl.py (trl>=1.7.0) appends a fail-fast after
-    `self.aux_loss_enabled = is_moe and args.router_aux_loss_coef != 0.0` so an
-    explicit MoE router-aux opt-in errors instead of silently training without
-    the penalty (the optimized forward cannot compute it). A change to this
-    line drops the guard silently (PR #6904)."""
+    """rl.py (trl>=1.7.0) appends a fail-fast after the `aux_loss_enabled`
+    assignment so an explicit MoE router-aux opt-in errors instead of silently
+    training without the penalty (the optimized forward cannot compute it).
+    TRL 1.14.0+ / main reworded the anchor from `is_moe and
+    args.router_aux_loss_coef` to a model-config probe (`hasattr(text_config,
+    "output_router_logits") and self.router_aux_loss_coef`); rl.py injects
+    after either spelling. A change to this line matching neither drops the
+    guard silently (PR #6904)."""
     if not _tag_ge(tag, "1.7.0"):
         pytest.skip(f"{tag}: aux_loss_enabled / router_aux_loss_coef added in TRL 1.7.0")
     src = fetch_text("huggingface/trl", tag, "trl/trainer/grpo_trainer.py")
     assert src is not None
-    assert "self.aux_loss_enabled = is_moe and args.router_aux_loss_coef != 0.0" in src, (
-        f"{tag}: `aux_loss_enabled = is_moe and args.router_aux_loss_coef != 0.0` "
-        f"changed; unsloth/models/rl.py's fail-fast .replace() anchor no-ops"
+    anchors = (
+        "self.aux_loss_enabled = is_moe and args.router_aux_loss_coef != 0.0",
+        'self.aux_loss_enabled = hasattr(text_config, "output_router_logits") and self.router_aux_loss_coef != 0.0',
+    )
+    assert any(anchor in src for anchor in anchors), (
+        f"{tag}: `aux_loss_enabled` assignment matches neither known spelling; "
+        f"unsloth/models/rl.py's fail-fast .replace() anchor no-ops"
     )
 
 
