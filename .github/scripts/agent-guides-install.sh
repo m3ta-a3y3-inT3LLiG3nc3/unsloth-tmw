@@ -94,8 +94,13 @@ case "$AGENT" in
   hermes)
     # start.py install_hint:
     #   curl -fsSL .../NousResearch/hermes-agent/main/scripts/install.sh | bash
+    # 2026-09-28: upstream install.sh removed the --no-skills option entirely
+    # ("unknown option: --no-skills"); --non-interactive --skip-setup
+    # --skip-browser are still accepted. The installer no longer pulls optional
+    # skills by default, so the flag is dropped rather than pinned to an old
+    # installer snapshot.
     curl_bash "https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh" \
-      --non-interactive --skip-setup --skip-browser --no-skills \
+      --non-interactive --skip-setup --skip-browser \
       || install_fail "hermes installer failed"
     echo "$HOME/.local/bin" >> "$GITHUB_PATH"
     ;;

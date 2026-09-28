@@ -446,6 +446,23 @@ with open(p, "w") as fh:
     json.dump(cfg, fh, indent=2)
 print(f"[openclaw] agent ci tools = {agent.get('tools', 'default')}")
 PY
+# start.py writes a legacy exec-approvals.json into the harness's relocated
+# state dir. Newer openclaw auto-migrates the config's agents.list ->
+# agents.entries but refuses the legacy approvals until `openclaw doctor
+# --fix` migrates them (2026-09-28: the migration warning was immediately
+# followed by turn-1 dying rc=1 in file-edit). Run doctor against the
+# harness's own state dir BEFORE any `openclaw agent` invocation.
+state_dir="$(raw_env OPENCLAW_STATE_DIR)"
+if [ -n "$state_dir" ]; then
+  echo "[openclaw] openclaw doctor --fix (OPENCLAW_STATE_DIR=$state_dir)"
+  if ! OPENCLAW_STATE_DIR="$state_dir" openclaw doctor --fix \
+      > "$LOGS_DIR/openclaw-doctor-fix.txt" 2>&1; then
+    tail -30 "$LOGS_DIR/openclaw-doctor-fix.txt"
+    guide_fail "openclaw doctor --fix failed -- see $LOGS_DIR/openclaw-doctor-fix.txt"
+  fi
+else
+  echo "::warning::[openclaw] OPENCLAW_STATE_DIR missing from connect output; skipping openclaw doctor --fix"
+fi
 }
 
 # Build an invoke script that applies start.py's env then runs the launch
