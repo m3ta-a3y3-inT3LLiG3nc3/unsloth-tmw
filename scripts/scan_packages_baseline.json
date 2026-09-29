@@ -1961,6 +1961,7 @@
       "severity": "CRITICAL",
       "evidence": "Env: L151:     return os.environ.get(UNSLOTH_ALLOW_PRIVATE_URL_FETCH_VAR, \"0\") == \"1\"\nNetwork: L109:     from urllib.request import url2pathname | L478:     session = requests.Session()",
       "evidence_hash": "3bbd70075adbff1b2cb50de320002a0dce6324653a8727ec60c42e0943dccdac",
+      "file_sha256": "2e6964fb27d42029b493913896c46b1558140a11b0f9c8142ee16e57ffb43051",
       "comment": "FP: UNSLOTH_ALLOW_PRIVATE_URL_FETCH is a documented feature gate; the network leg is a legitimate media download with an SSRF deny-list. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
     },
     {
@@ -1970,6 +1971,7 @@
       "severity": "CRITICAL",
       "evidence": "IMDS: L144:     \"metadata.google.internal\", \"metadata.goog\", \"metadata\",\nNetwork: L109:     from urllib.request import url2pathname | L478:     session = requests.Session()",
       "evidence_hash": "972786b837f20621c6615cf1c38a0b84abe925d302d7317679bc0272643c0793",
+      "file_sha256": "2e6964fb27d42029b493913896c46b1558140a11b0f9c8142ee16e57ffb43051",
       "comment": "FP: flagged hostnames sit in _BLOCKED_HOSTNAMES, an SSRF deny-list - defensive strings, never requested. Verified in upstream wheel. (triaged 2026-09-28, CI fix PR)"
     },
     {
@@ -1979,6 +1981,7 @@
       "severity": "HIGH",
       "evidence": "Obfusc: L1638:         exec(compile(source, file_location, \"exec\"), new_module.__dict__) | L1877:             _mod = __import__(model_location, fromlist=items) | L6295:         f\"   {chr(92)}{chr(92)}   /|    Num examples = {num_examples:,} | Num Epochs = {num_train_epochs:,} | Total steps = {max_steps:,}\\\\n\"\\\\\nL6296:         f\"O^O/ {chr(92)}_/ {chr(92)}    Batch size per device = {self._train_batch_size:,} | Gradient accumulation steps = {args.gradient_accumulation_steps}\\\\n\"\\\\\nL6297:         f\"{chr(92)}        /    Data Parallel GPUs = {args.world_size} | Total batch size ({self._train_batch_size} x {args.gradient_accumulation_steps} x {args.world_size}) = {total_train_batch_size: sha256:b7ea9cdbe360ad323911014caf12a9d4ec87cb36195a511080e4e484c2fb80d2\nL6298:         f' \"-____-\"     Trainable parameters = {get_model_param_count(model, trainable_only=True):,} of {get_model_param_count(model):,} ({get_model_param_count(model, trainable_only=True)/get_model_p sha256:9e832c1e7b2815aa44dc42638d821cb9df22550db88d85bd4bfb29c13f984b53 | L6296:         f\"O^O/ {chr(92)}_/ {chr(92)}    Batch size per device = {self._train_batch_size:,} | Gradient accumulation steps = {args.gradient_accumulation_steps}\\\\n\"\\\\\nL6297:         f\"{chr(92)}        /    Data Parallel GPUs = {args.world_size} | Total batch size ({self._train_batch_size} x {args.gradient_accumulation_steps} x {args.world_size}) = {total_train_batch_size: sha256:b7ea9cdbe360ad323911014caf12a9d4ec87cb36195a511080e4e484c2fb80d2\nL6298:         f' \"-____-\"     Trainable parameters = {get_model_param_count(model, trainable_only=True):,} of {get_model_param_count(model):,} ({get_model_param_count(model, trainable_only=True)/get_model_p sha256:9e832c1e7b2815aa44dc42638d821cb9df22550db88d85bd4bfb29c13f984b53 | L6295:         f\"   {chr(92)}{chr(92)}   /|    Num examples = {num_examples:,} | Num Epochs = {num_train_epochs:,} | Total steps = {max_steps:,}\\\\n\"\\\\\nL6296:         f\"O^O/ {chr(92)}_/ {chr(92)}    Batch size per device = {self._train_batch_size:,} | Gradient accumulation steps = {args.gradient_accumulation_steps}\\\\n\"\\\\\nL6297:         f\"{chr(92)}        /    Data Parallel GPUs = {args.world_size} | Total batch size ({self._train_batch_size} x {args.gradient_accumulation_steps} x {args.world_size}) = {total_train_batch_size: sha256:b7ea9cdbe360ad323911014caf12a9d4ec87cb36195a511080e4e484c2fb80d2\nExec: L1638:         exec(compile(source, file_location, \"exec\"), new_module.__dict__) | L1806:         _modeling_file = eval(model_location) | L2533:     f = eval(f\"{model_location}.{module}\") | L2874:         exec(f\"def raise_{j}(*args, **kwargs): print('{function}')\", globals(), locals()) | L2875:         try: exec(f\"EMPTY_LOGITS.{function} = raise_{j}\", globals(), locals()) | L4357:         exec(f\"import {parent}\", locals(), globals()) | L4471:                 dir(eval(parent)), | L4475:             exec(f\"{parent}.{child}.forward = forward\", globals(), locals()) | L4549:         module = eval(f\"modeling_file.{module}\") | L4576:             inner_class = eval(f\"modeling_file.{inner_class}\") | L4706:                 exec(f\"from timm.layers.norm_act import {norm}\") | L4714:             forward = eval(norm).forward | L4720:             exec(f\"timm.layers.norm_act.{norm}.forward = forward\") | L4737:                 exec(f\"from timm.models._efficientnet_blocks import {block}\") | L4745:             forward = eval(block).forward | L4751:             exec(f\"timm.models._efficientnet_blocks.{block}.forward = forward\") | L4991:     exec(\nL4992:         f\"{model_location}.torch.nn.{module}.forward = forward\",\nL4993:         globals(),\nL4994:         locals(),\nL4995:     ) | L4997:         exec(f\"{model_location}.nn.{module}.forward = forward\", globals(), locals()) | L5001:         exec(\nL5002:             f\"combined_module.torch.nn.{module}.forward = forward\",\nL5003:             globals(),\nL5004:             locals(),\nL5005:         ) | L5007:             exec(f\"combined_module.nn.{module}.forward = forward\", globals(), locals()) | L5084:                 source = eval(f\"{model_location}.torch\") | L5091:             function = eval(f\"source.nn.{module}\") | L5285:     exec(\"import transformers\", globals()) | L5298:     exec(\nL5299:         \"model_logger.addFilter(HideLoggingMessage('`use_cache`'))\", globals(), locals()\nL5300:     ) | L5302:     exec(\nL5303:         \"model_logger.addFilter(HideLoggingMessage('compile_config'))\",\nL5304:         globals(),\nL5305:         locals(),\nL5306:     ) | L5540:         source = eval(f\"modeling_file.{module}\") | L5554:         source = eval(f\"modeling_file.{module}\") | L5655:         source = eval(f\"modeling_file.{module}\") | L5693:             source = eval(f\"{model_location}.{module}\") | L5773:                 source = eval(f\"{model_location}.{module}\") | L5821:             source = eval(f\"{model_location}.{module}\") | L6058:         source = eval(f\"{model_location}.{module}\") | L6069:         exec(\nL6070:             f\"{model_location}.{module}._update_causal_mask = no_update_causal_mask\",\nL6071:             globals(),\nL6072:         ) | L6135:                 source = eval(f\"{model_location}.{module}\") | L6176:                 module_cls = eval(f\"{model_location}.{module}\") | L6213:                 module_cls = eval(f\"{model_location}.{module}\") | L6280:     exec(\nL6281:         \"from transformers.trainer import (\" + \", \".join(x for x in good_items) + \")\",\nL6282:         globals(),\nL6283:     ) | L6345:     exec(inner_training_loop, globals()) | L6354:             function = eval(f\"{model_location}.{module}\") | L6441:             function = eval(f\"{model_location}.{module}\") | L6595:             exec(\nL6596:                 f\"{model_location}.{module} = combined_module.{module}\",\nL6597:                 globals(),\nL6598:                 locals(),\nL6599:             ) | L6609:     check_dicts = dir(eval(f\"{model_location}\")) | L6611:         item = eval(f\"{model_location}.{check}\") | L6621:                         exec(\nL6622:                             f\"{model_location}.{check}['{key}'] = combined_module.{replaced_class}\",\nL6623:                             globals(),\nL6624:                             locals(),\nL6625:                         )",
       "evidence_hash": "aaba0e6f7c289e2d6ee4ac8ff927d691a450fb3913a4245aa0fab585dd28d871",
+      "file_sha256": "23dcdb50da80923669e3f2198c1432dfef4dd3b01440271c7dc7925a62a9c41c",
       "comment": "REVIEW: exec(compile(...)) is unsloth's documented compiled-kernel/patched-model loader - genuine code exec of locally generated code by design. Suppressed as benign reviewed upstream mechanism. (triaged 2026-09-28, CI fix PR)"
     },
     {
@@ -2025,6 +2028,66 @@
       "evidence": "Obfusc: L330:             exec(compile(cached_bytes, cache_file, \"exec\"), module.__dict__)\nExec: L330:             exec(compile(cached_bytes, cache_file, \"exec\"), module.__dict__)",
       "evidence_hash": "ef22a4fe0d8ec7e2b0e4afc6e6a3d997cd94c981bf59790562217d4f9dd70732",
       "comment": "REVIEW: exec(compile(cached_bytes, ...)) is unsloth's hash-verified cached-module loader for temporary patches (TOCTOU documented in comments). Real code exec by design; suppressed as benign reviewed upstream mechanism. (triaged 2026-09-28, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/converter_scan.py",
+      "check": "Writes to /tmp and executes (staged dropper)",
+      "severity": "CRITICAL",
+      "evidence": "L1768:     r\"/tmp/\\S+.*(?:subprocess|os\\.system|os\\.popen|Popen|chmod.*\\+x)\", | L1768:     r\"/tmp/\\S+.*(?:subprocess|os\\.system|os\\.popen|Popen|chmod.*\\+x)\", sha256:8f6aa9a429370960eeaa339f9cbbc6069dfda34e6a9dc8e7c64689a74a42cf1a",
+      "evidence_hash": "2e35147c040613a5f7e8bdf6b4595b5a5ff1c7530425963f18f9b3f79a78d5f4",
+      "file_sha256": "84e812b81fa72db5231c15ba96ad4ee2f714bfa5a8e32772faeb94340672ffb5",
+      "comment": "FP: the flagged text is converter_scan.py's own detection regex (RE_TEMP_EXEC) - unsloth's supply-chain scanner matching its own pattern strings. Verified in upstream wheel 2026.9.8. (triaged 2026-09-29, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/converter_scan.py",
+      "check": "Enumerates filesystem AND makes network calls",
+      "severity": "CRITICAL",
+      "evidence": "FS: L1579:     r\"|/etc/shadow|/etc/passwd\" | L1717:     r\"|\\b\\.bash_history\\b\" | L1718:     r\"|\\b\\.zsh_history\\b\" | L1719:     r\"|/etc/shadow\" | L1720:     r\"|/etc/passwd\",\nNetwork: L293:     \"socket\", \"http.client\", \"http.server\", \"urllib.request\",",
+      "evidence_hash": "0fdf64299d5f20fcbf674e369e9a9c66a6d8618fde6ac93c64ec66ffe76a8aff",
+      "file_sha256": "84e812b81fa72db5231c15ba96ad4ee2f714bfa5a8e32772faeb94340672ffb5",
+      "comment": "FP: flagged strings are the RE_FS_ENUM detection regex + UNVOUCHABLE_MODULES allowlist tuple in unsloth's own supply-chain scanner. Verified in upstream wheel 2026.9.8. (triaged 2026-09-29, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/converter_scan.py",
+      "check": "Accesses cloud metadata/IMDS AND makes network calls",
+      "severity": "CRITICAL",
+      "evidence": "IMDS: L1618:     r\"|/latest/meta-data\" | L1619:     r\"|/metadata/instance\" | L1620:     r\"|/metadata/identity\"\nNetwork: L293:     \"socket\", \"http.client\", \"http.server\", \"urllib.request\",",
+      "evidence_hash": "05d185bd26aef977ac79dd0248a6ebf8c621c3e7f769c23dcee5f6ccfc72f317",
+      "file_sha256": "84e812b81fa72db5231c15ba96ad4ee2f714bfa5a8e32772faeb94340672ffb5",
+      "comment": "FP: flagged strings are the RE_CLOUD_METADATA detection regex + UNVOUCHABLE_MODULES allowlist tuple in unsloth's own supply-chain scanner. Verified in upstream wheel 2026.9.8. (triaged 2026-09-29, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/converter_scan.py",
+      "check": "Targets cryptocurrency wallets AND makes network calls",
+      "severity": "CRITICAL",
+      "evidence": "Crypto: L1757:     r\"|\\b(?:xprv|xpub|bc1|0x[a-fA-F0-9]{40})\\b\",\nNetwork: L293:     \"socket\", \"http.client\", \"http.server\", \"urllib.request\",",
+      "evidence_hash": "e97eb692e16a2a8a41097e62fec4db501b9d9617f45ecf69d61c95b28f21d061",
+      "file_sha256": "84e812b81fa72db5231c15ba96ad4ee2f714bfa5a8e32772faeb94340672ffb5",
+      "comment": "FP: flagged strings are the RE_CRYPTO_THEFT detection regex + UNVOUCHABLE_MODULES allowlist tuple in unsloth's own supply-chain scanner. Verified in upstream wheel 2026.9.8. (triaged 2026-09-29, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/converter_scan.py",
+      "check": "Installs persistence AND makes network calls (backdoor pattern)",
+      "severity": "CRITICAL",
+      "evidence": "Persist: L1626:     r\"/etc/systemd/\" | L1629:     r\"|/etc/cron\" | L1632:     r\"|/Library/LaunchDaemons\" | L1633:     r\"|/Library/LaunchAgents\" | L1635:     r\"|~/.local/share/systemd\" | L1637:     r\"|HKEY_LOCAL_MACHINE.*\\\\\\\\Run\" | L1638:     r\"|HKEY_CURRENT_USER.*\\\\\\\\Run\"\nNetwork: L293:     \"socket\", \"http.client\", \"http.server\", \"urllib.request\",",
+      "evidence_hash": "c68642625a026459571a7c7e5609254c64fd2f5625ff02d0556ef444d223462f",
+      "file_sha256": "84e812b81fa72db5231c15ba96ad4ee2f714bfa5a8e32772faeb94340672ffb5",
+      "comment": "FP: flagged strings are the RE_PERSISTENCE detection regex + UNVOUCHABLE_MODULES allowlist tuple in unsloth's own supply-chain scanner. Verified in upstream wheel 2026.9.8. (triaged 2026-09-29, CI fix PR)"
+    },
+    {
+      "package": "unsloth-zoo",
+      "file": "unsloth_zoo/temporary_patches/granitemoehybrid.py",
+      "check": "Advanced obfuscation (marshal/compile/zlib) + exec/eval",
+      "severity": "HIGH",
+      "evidence": "Obfusc: L73:     exec(compile(source, f\"<unsloth granitemoehybrid float16 {module.__name__}>\", \"exec\"), namespace)\nExec: L73:     exec(compile(source, f\"<unsloth granitemoehybrid float16 {module.__name__}>\", \"exec\"), namespace)",
+      "evidence_hash": "5daea207e575087c8cefc30b8d2d947a88640b3be52de1de592d365ab74e978f",
+      "file_sha256": "d53b1826588c19a5146dcc66046b8787c7d882259bdc8617de8d3fbce6b37c9e",
+      "comment": "FP: exec(compile(...)) is unsloth's documented float16 decoder patch for GraniteMoEHybrid - compiles inspect.getsource-rewritten forward by design, same mechanism as the baselined compiler.py entries. Verified in upstream wheel 2026.9.8. (triaged 2026-09-29, CI fix PR)"
     }
   ]
 }
