@@ -218,8 +218,17 @@ def _ensure_torchcodec_stub() -> None:
     first pre-empts the notebooks-ci smoke step's stub via its
     ``if "torchcodec" not in sys.modules`` guard. Never shadows a real
     install: the seat only happens when ``find_spec`` finds nothing.
+
+    A ``sys.modules`` stub still fails distribution-metadata lookups:
+    transformers' torchcodec-available path calls
+    ``importlib.metadata.version("torchcodec")`` (audio_utils.py), which
+    raises ``PackageNotFoundError`` for a stub with no installed dist-info.
+    So this also patches ``importlib.metadata.version`` to report a
+    plausible version for ``torchcodec`` only; every other distribution
+    delegates to the original. Idempotent: patching happens once.
     """
     import importlib.machinery
+    import importlib.metadata
     import importlib.util
 
     stub = sys.modules.get("torchcodec")
@@ -230,6 +239,17 @@ def _ensure_torchcodec_stub() -> None:
         stub = types.ModuleType("torchcodec")
         stub.__spec__ = importlib.machinery.ModuleSpec("torchcodec", loader = None)
         sys.modules["torchcodec"] = stub
+
+    if not getattr(importlib.metadata.version, "_unsloth_torchcodec_stubbed", False):
+        _real_version = importlib.metadata.version
+
+        def _version(distribution_name, *args, **kwargs):
+            if isinstance(distribution_name, str) and distribution_name.lower() == "torchcodec":
+                return "0.1"
+            return _real_version(distribution_name, *args, **kwargs)
+
+        _version._unsloth_torchcodec_stubbed = True  # type: ignore[attr-defined]
+        importlib.metadata.version = _version  # type: ignore[assignment]
 
 
 if __name__ == "__main__":
